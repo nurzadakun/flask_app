@@ -1,8 +1,16 @@
 from flask import Flask, render_template, request
+import sqlite3
 
 app = Flask(__name__)
 
-users = {'login':'password', 'nurzada':'parol'}
+connect = sqlite3.connect('users.db', check_same_thread=False)
+cursor = connect.cursor()
+
+log = 'nur'
+
+cursor.execute('SELECT * FROM USERS WHERE login=?', [log])
+user = cursor.fetchall()
+print(user)
 
 @app.route("/")
 def welcome():
@@ -13,9 +21,10 @@ def auth():
     if request.method == 'POST':
         login = request.form['login']
         password = request.form['password']
+
+        cursor.execute('SELECT * FROM USERS WHERE login=?', [login])
+        user = cursor.fetchall()
         
-        if(users[login]==password):
+        if(user[0][1]==password):
             return render_template("welcome.html", login=login)
     return render_template("auth.html")
-
-
