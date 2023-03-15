@@ -6,15 +6,24 @@ app = Flask(__name__)
 connect = sqlite3.connect('users.db', check_same_thread=False)
 cursor = connect.cursor()
 
-log = 'nur'
-
-cursor.execute('SELECT * FROM USERS WHERE login=?', [log])
-user = cursor.fetchall()
-print(user)
 
 @app.route("/")
 def welcome():
     return render_template("index.html", name="1")
+
+#регистрация
+
+@app.route("/regist", methods=['GET','POST'])
+def regist():
+    if request.method == 'POST':
+        login = request.form['login']
+        password = request.form['password']
+
+        cursor.execute('''INSERT INTO users (login, password)
+        VALUES (?, ?)
+        ''', [login, password])
+    return render_template("regist.html")
+
 
 @app.route("/auth", methods=['GET','POST'])
 def auth():
