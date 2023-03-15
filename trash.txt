@@ -1,9 +1,0 @@
-@app.route("/auth", methods=['GET','POST'])
-def auth():
-    if request.method == 'POST':
-        login = request.form['login']
-        password = request.form['password']
-        
-        if(users[login]==password):
-            return render_template("welcome.html", login=login)
-    return render_template("auth.html")
