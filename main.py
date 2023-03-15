@@ -6,7 +6,10 @@ app = Flask(__name__)
 connect = sqlite3.connect('users.db', check_same_thread=False)
 cursor = connect.cursor()
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> e6e792bcbf15fafe6239a5f67ae0d39d454a2480
 @app.route("/")
 def welcome():
     return render_template("index.html", name="1")
@@ -34,6 +37,7 @@ def auth():
         cursor.execute('SELECT * FROM USERS WHERE login=?', [login])
         user = cursor.fetchall()
         
-        if(user[0][1]==password):
-            return render_template("welcome.html", login=login)
+        if user:
+            if(user[0][1]==password):
+                return render_template("welcome.html", login=login)
     return render_template("auth.html")
