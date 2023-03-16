@@ -14,24 +14,20 @@ def welcome():
 def regist():
     if request.method == 'POST':
         login = request.form['login']
-        password = request.form['password']
+        print(login)
         email = request.form['email']
+        password = request.form['password']
 
         connect = sqlite3.connect('users.db')
         cursor = connect.cursor()
 
         cursor.execute('''INSERT INTO users (login, email, password)
         VALUES (?, ?, ?)
-        ''', [login, password, email])
+        ''', [login, email, password])
 
         connect.commit()
         connect.close()
     return render_template("regist.html")
-
-def hash_password(password):
-    password = hashlib.sha256(password)
-    return password
-
 
 @app.route("/auth", methods=['GET','POST'])
 def auth():
