@@ -19,9 +19,11 @@ def regist():
         cursor = connection.cursor()
         login = request.form['login']
         password = request.form['password']
-        cursor.execute('''INSERT INTO users (login, password)
-        VALUES (?, ?)
-        ''', [login, password])
+        imail = request.form['imail']
+
+        cursor.execute('''INSERT INTO users (login, imail, password)
+        VALUES (?, ?, ?)
+        ''', [login, password, imail])
         connection.commit()
         connection.close()
     return render_template("regist.html")
@@ -38,7 +40,7 @@ def auth():
         cursor.execute('SELECT * FROM USERS WHERE password=?', [password])
         user = cursor.fetchall()
         if user:
-            if(user[0][2]==password):
+            if(user[0][3]==password):
                 return render_template("welcome.html", login=login)
         connection.commit()
         connection.close()
