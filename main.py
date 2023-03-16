@@ -41,11 +41,12 @@ def regist():
         connect.close()
     return render_template("regist.html")
 
+#зашифровка пароля
 def hash_password(password):
     password = hashlib.sha256(password.encode('utf-8')).hexdigest()
     return password
 
-
+#авторизация
 @app.route("/auth", methods=['GET','POST'])
 def auth():
     if request.method == 'POST':
@@ -67,11 +68,12 @@ def auth():
         connect.close()
     return render_template("auth.html")
 
+#создание рандомного числа 
 def generate_random_number():
     number = random.randint(10000, 99999)
     return number
 
-
+#запрос на изменение пароля, отправка письма на почту
 @app.route("/forgot_password", methods=['GET','POST'])
 def forgot():
     if request.method == 'POST':
@@ -101,6 +103,7 @@ def forgot():
         connect.close()
     return render_template("forgotpassword.html")
 
+#изменение пароля
 @app.route("/reset_password/<token>", methods=['GET','POST'])
 def reset(token):
     if request.method == 'POST':
