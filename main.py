@@ -1,10 +1,8 @@
 from flask import Flask, render_template, request
 import sqlite3
+import hashlib
 
 app = Flask(__name__)
-
-connect = sqlite3.connect('users.db', check_same_thread=False)
-cursor = connect.cursor()
 
 @app.route("/")
 def welcome():
@@ -15,27 +13,36 @@ def welcome():
 @app.route("/regist", methods=['GET','POST'])
 def regist():
     if request.method == 'POST':
-        connection = sqlite3.connect('users.db')
-        cursor = connection.cursor()
+
+        email = request.form['email']
         login = request.form['login']
         password = request.form['password']
-        imail = request.form['imail']
 
-        cursor.execute('''INSERT INTO users (login, imail, password)
+        connect = sqlite3.connect('users.db')
+        cursor = connect.cursor()
+
+        password = hash_password(password)
+
+        cursor.execute('''INSERT INTO users (login, email, password)
         VALUES (?, ?, ?)
-        ''', [login, password, imail])
-        connection.commit()
-        connection.close()
+        ''', [login, password, email])
+        connect.commit()
+        connect.close()
     return render_template("regist.html")
+
+def hash_password(password):
+    password = hashlib.sha256(password)
+    return password
+
 
 @app.route("/auth", methods=['GET','POST'])
 def auth():
     if request.method == 'POST':
-        connection = sqlite3.connect('users.db')
-        cursor = connection.cursor()
         login = request.form['login']
         password = request.form['password']
-        imail = request.form['imail']
+
+        connect = sqlite3.connect('users.db')
+        cursor = connect.cursor()
 
         cursor.execute('SELECT * FROM USERS WHERE login=?', [login])
         cursor.execute('SELECT * FROM USERS WHERE password=?', [password])
@@ -43,7 +50,7 @@ def auth():
         if user:
             if(user[0][3]==password):
                 return render_template("welcome.html", login=login)
-        connection.commit()
-        connection.close()
+        connect.commit()
+        connect.close()
     return render_template("auth.html")
 
