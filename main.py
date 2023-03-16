@@ -35,6 +35,7 @@ def auth():
         cursor = connection.cursor()
         login = request.form['login']
         password = request.form['password']
+        imail = request.form['imail']
 
         cursor.execute('SELECT * FROM USERS WHERE login=?', [login])
         cursor.execute('SELECT * FROM USERS WHERE password=?', [password])
