@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for, redirect
 import sqlite3
 import hashlib
 import random
@@ -15,9 +15,12 @@ app.config['MAIL_USE_SSL'] = False
 
 mail = Mail(app)
 
+connect = sqlite3.connect('users.db', check_same_thread=False)
+cursor = connect.cursor()
+
 @app.route("/")
 def welcome():
-    return render_template("index.html", name="1")
+    return render_template("index.html")
 
 #регистрация
 
@@ -29,9 +32,6 @@ def regist():
         password = request.form['password']
 
         password = hash_password(password)
-
-        connect = sqlite3.connect('users.db')
-        cursor = connect.cursor()
 
         cursor.execute('''INSERT INTO users (login, email, password)
         VALUES ('%s', '%s', '%s')
@@ -53,9 +53,6 @@ def auth():
         password = request.form['password']
 
         password = hash_password(password)
-
-        connect = sqlite3.connect('users.db')
-        cursor = connect.cursor()
 
         cursor.execute("SELECT * FROM USERS WHERE login='%s' AND password='%s'"%(login, password))
         user = cursor.fetchall()
@@ -80,9 +77,46 @@ def forgot():
     if request.method == 'POST':
         email = request.form['email']
 
-        msg = Message('Восстановление пароля', sender = 'flask_first_app', recipients = [email])
-        msg.body = "Перейдите по ссылке чтобы восстановить пароль"
-        mail.send(msg)
+        connect = sqlite3.connect('users.db')
+        cursor = connect.cursor()
+        cursor.execute("SELECT * FROM users WHERE email = '%s'"%(email))
+        user = cursor.fetchone()
 
+        if user:
+            token = generate_random_number()  
+
+            connect = sqlite3.connect('users.db')
+            cursor = connect.cursor()
+            cursor.execute("UPDATE users SET reset_token = '%s' WHERE email = '%s'"%(token, email))
+
+            link = url_for('reset', token=token)
+            msg = Message('Восстановление пароля', sender = 'flask_first_app', recipients = [email])
+            msg.body = f"Перейдите по ссылке чтобы восстановить пароль: http://localhost:5000{link}"
+            mail.send(msg)
+
+            connect.commit()
+            connect.close()
+            return render_template("auth.html")
+        connect.commit()
+        connect.close()
     return render_template("forgotpassword.html")
+
+@app.route("/reset_password/<token>", methods=['GET','POST'])
+def reset(token):
+    if request.method == 'POST':
+        connect = sqlite3.connect('users.db')
+        cursor = connect.cursor()
+        cursor.execute("SELECT * FROM users WHERE reset_token = '%s'"%(token))
+        user = cursor.fetchone()
+
+        password = request.form['new_password']
+        password = hash_password(password)
+
+        cursor.execute("UPDATE users SET password = '%s', reset_token = NULL WHERE id = '%s'"%(password, user[0]))
+        
+        connect.commit()
+        connect.close()
+
+        return redirect("/auth")
+    return render_template("resetpassword.html")
 
