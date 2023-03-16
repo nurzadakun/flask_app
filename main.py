@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 import sqlite3
+import hashlib
 
 app = Flask(__name__)
 
@@ -26,6 +27,11 @@ def regist():
         connect.commit()
         connect.close()
     return render_template("regist.html")
+
+def hash_password(password):
+    password = hashlib.sha256(password)
+    return password
+
 
 @app.route("/auth", methods=['GET','POST'])
 def auth():
