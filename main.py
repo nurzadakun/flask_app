@@ -3,9 +3,6 @@ import sqlite3
 
 app = Flask(__name__)
 
-connect = sqlite3.connect('users.db', check_same_thread=False)
-cursor = connect.cursor()
-
 @app.route("/")
 def welcome():
     return render_template("index.html", name="1")
@@ -15,35 +12,39 @@ def welcome():
 @app.route("/regist", methods=['GET','POST'])
 def regist():
     if request.method == 'POST':
-        connection = sqlite3.connect('users.db')
-        cursor = connection.cursor()
         login = request.form['login']
         password = request.form['password']
-        imail = request.form['imail']
+        email = request.form['email']
 
-        cursor.execute('''INSERT INTO users (login, imail, password)
+        connect = sqlite3.connect('users.db')
+        cursor = connect.cursor()
+
+        cursor.execute('''INSERT INTO users (login, email, password)
         VALUES (?, ?, ?)
-        ''', [login, password, imail])
-        connection.commit()
-        connection.close()
+        ''', [login, password, email])
+
+        connect.commit()
+        connect.close()
     return render_template("regist.html")
 
 @app.route("/auth", methods=['GET','POST'])
 def auth():
     if request.method == 'POST':
-        connection = sqlite3.connect('users.db')
-        cursor = connection.cursor()
         login = request.form['login']
         password = request.form['password']
-        imail = request.form['imail']
+
+        connect = sqlite3.connect('users.db')
+        cursor = connect.cursor()
 
         cursor.execute('SELECT * FROM USERS WHERE login=?', [login])
         cursor.execute('SELECT * FROM USERS WHERE password=?', [password])
         user = cursor.fetchall()
+
         if user:
             if(user[0][3]==password):
                 return render_template("welcome.html", login=login)
-        connection.commit()
-        connection.close()
+            
+        connect.commit()
+        connect.close()
     return render_template("auth.html")
 
