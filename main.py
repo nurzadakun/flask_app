@@ -1,17 +1,17 @@
 from flask import Flask, render_template, request, url_for, redirect, session
-import sqlite3
 import hashlib
 import random
 from flask_mail import Mail, Message
 from flask_session import Session
 from flask_socketio import SocketIO, emit
+import db_context
+from datetime import datetime
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 socketio = SocketIO(app)
-
 
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -22,14 +22,13 @@ app.config['MAIL_USE_SSL'] = False
 
 mail = Mail(app)
 
-connect = sqlite3.connect('users.db', check_same_thread=False)
-cursor = connect.cursor()
-
 @app.route("/")
 def welcome():
     if not session.get("name"):
         return render_template('index.html')
-    return render_template('profile.html', login=session["name"])
+    users = db_context.db_context("Select * from users where users.login <> '%s'"%session["name"])
+    print('hjfvhvk', users)
+    return render_template('profile.html', login=session["name"], users = users)
 
 #регистрация
 
@@ -42,12 +41,10 @@ def regist():
 
         password = hash_password(password)
 
-        cursor.execute('''INSERT INTO users (login, email, password)
+        db_context.db_context('''INSERT INTO users (login, email, password)
         VALUES ('%s', '%s', '%s')
-        '''%(login, email, password))
+        '''%(login, email, password), commit=True)
 
-        connect.commit()
-        connect.close()
     return render_template("regist.html")
 
 #зашифровка пароля
@@ -63,20 +60,14 @@ def auth():
         password = request.form['password']
 
         password = hash_password(password)
-        print(password)
 
-        connect = sqlite3.connect('users.db')
-        cursor = connect.cursor()
-
-        cursor.execute("SELECT * FROM USERS WHERE login='%s' AND password='%s'"%(login, password))
-        user = cursor.fetchall()
+        user = db_context.db_context("SELECT * FROM USERS WHERE login='%s' AND password='%s'"%(login, password))
         if user:
             if(user[0][3]==password):
                 session["name"] = login
+                session["user_id"] = user[0][0]
                 return render_template("profile.html", login=login)
             
-        connect.commit()
-        connect.close()
     return render_template("auth.html")
 
 #создание рандомного числа 
@@ -90,47 +81,33 @@ def forgot():
     if request.method == 'POST':
         email = request.form['email']
 
-        connect = sqlite3.connect('users.db')
-        cursor = connect.cursor()
-        cursor.execute("SELECT * FROM users WHERE email = '%s'"%(email))
-        user = cursor.fetchone()
+        user = db_context.db_context("SELECT * FROM users WHERE email = '%s'"%(email))
 
         if user:
             token = generate_random_number()  
 
-            connect = sqlite3.connect('users.db')
-            cursor = connect.cursor()
-            cursor.execute("UPDATE users SET reset_token = '%s' WHERE email = '%s'"%(token, email))
+            
+            db_context.db_context("UPDATE users SET reset_token = '%s' WHERE email = '%s'"%(token, email))
 
             link = url_for('reset', token=token)
             msg = Message('Восстановление пароля', sender = 'flask_first_app', recipients = [email])
             msg.body = f"Перейдите по ссылке чтобы восстановить пароль: http://localhost:5000{link}"
             mail.send(msg)
 
-            connect.commit()
-            connect.close()
             return render_template("auth.html")
-        connect.commit()
-        connect.close()
     return render_template("forgotpassword.html")
 
 #изменение пароля
 @app.route("/reset_password/<token>", methods=['GET','POST'])
 def reset(token):
     if request.method == 'POST':
-        connect = sqlite3.connect('users.db')
-        cursor = connect.cursor()
-        cursor.execute("SELECT * FROM users WHERE reset_token = '%s'"%(token))
-        user = cursor.fetchone()
+        db_context.db_context("SELECT * FROM users WHERE reset_token = '%s'"%(token))
 
         password = request.form['new_password']
         password = hash_password(password)
 
-        cursor.execute("UPDATE users SET password = '%s', reset_token = NULL WHERE id = '%s'"%(password, user[0]))
+        db_context.db_context("UPDATE users SET password = '%s', reset_token = NULL WHERE id = '%s'"%(password, user[0]))
         
-        connect.commit()
-        connect.close()
-
         return redirect("/auth")
     return render_template("resetpassword.html")
 
@@ -140,13 +117,21 @@ def logout():
     return render_template("index.html")
 
 
-@app.route('/chat')
-def chat():
-    return render_template('chat.html')
+@app.route('/chat/<user_id>')
+def chat(user_id):
+    print('dsvfds', user_id)
+    return render_template('chat.html', user_id_receiver = user_id)
 
 @socketio.on('send')
 def handle_send(data):
+    curDT = datetime.now()
     message = data['message']
+    user_id_receiver = data['user_id_receiver']
+    db_context.db_context('''
+        INSERT INTO messages (user_id_sender, user_id_receiver, message_text, message_datetime)
+        VALUES (%s, %s, '%s', '%s')
+    '''%(session["user_id"], user_id_receiver, message, curDT.strftime("%m/%d/%Y, %H:%M:%S")),commit=True)
+    print('ffffff', message)
     socketio.emit('message', {'message': message})
 
 if __name__ == '__main__':

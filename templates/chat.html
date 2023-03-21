@@ -6,6 +6,7 @@
 
     <form id="message-form">
         <input type="text" id="message-input">
+        <input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
         <button type="submit">Send</button>
       </form>
       <ul id="message-list"></ul>
@@ -30,8 +31,10 @@ $(function() {
     event.preventDefault();
     var messageInput = $('#message-input');
     var message = messageInput.val();
+    var user_id_receiverInput = $('#user_id_receiver');
+    var user_id_receiver = user_id_receiverInput.val();
     messageInput.val('');
-    socket.emit('send', { message: message });
+    socket.emit('send', { message: message, user_id_receiver: user_id_receiver });
   });
 });
   </script>
