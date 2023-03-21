@@ -64,6 +64,7 @@ def auth():
 
         cursor.execute("SELECT * FROM USERS WHERE login='%s' AND password='%s'"%(login, password))
         user = cursor.fetchall()
+<<<<<<< HEAD
 
         print(user)
 
@@ -72,8 +73,15 @@ def auth():
                 session["name"] = login
                 return render_template("welcome.html", login=login)
             
+=======
+>>>>>>> 269ed43f873db7f16975df3b4ff21fced09098a4
         connect.commit()
         connect.close()
+        if user:
+            if(user[0][3]==password):
+                return render_template("index.html", login=login)
+            
+        
     return render_template("auth.html")
 
 #создание рандомного числа 
