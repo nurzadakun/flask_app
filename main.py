@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
-socketio = SocketIO(app)
+socketio = SocketIO(app, async_mode='threading')
 
 
 app.config['MAIL_SERVER']='smtp.gmail.com'
@@ -144,10 +144,10 @@ def logout():
 def chat():
     return render_template('chat.html')
 
-@socketio.on('connect')
-def test_connect():
-    print('Client connected')
-    emit('my response', {'data': 'Connected'})
+@socketio.on('message')
+def handle_message(message):
+    print('received message: ' + message)
+    emit('message', message, broadcast=True)
 
 if __name__ == '__main__':
     socketio.run(app)
