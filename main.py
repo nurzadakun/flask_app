@@ -4,11 +4,14 @@ import hashlib
 import random
 from flask_mail import Mail, Message
 from flask_session import Session
+from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+socketio = SocketIO(app)
+
 
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -64,7 +67,6 @@ def auth():
 
         cursor.execute("SELECT * FROM USERS WHERE login='%s' AND password='%s'"%(login, password))
         user = cursor.fetchall()
-<<<<<<< HEAD
 
         print(user)
 
@@ -73,15 +75,8 @@ def auth():
                 session["name"] = login
                 return render_template("welcome.html", login=login)
             
-=======
->>>>>>> 269ed43f873db7f16975df3b4ff21fced09098a4
         connect.commit()
         connect.close()
-        if user:
-            if(user[0][3]==password):
-                return render_template("index.html", login=login)
-            
-        
     return render_template("auth.html")
 
 #создание рандомного числа 
@@ -145,3 +140,14 @@ def logout():
     return render_template("index.html")
 
 
+@app.route('/chat')
+def chat():
+    return render_template('chat.html')
+
+@socketio.on('connect')
+def test_connect():
+    print('Client connected')
+    emit('my response', {'data': 'Connected'})
+
+if __name__ == '__main__':
+    socketio.run(app)
