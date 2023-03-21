@@ -1,10 +1,14 @@
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, url_for, redirect, session
 import sqlite3
 import hashlib
 import random
 from flask_mail import Mail, Message
+from flask_session import Session
 
 app = Flask(__name__)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
 
 app.config['MAIL_SERVER']='smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -20,7 +24,9 @@ cursor = connect.cursor()
 
 @app.route("/")
 def welcome():
-    return render_template("index.html")
+    if not session.get("name"):
+        return render_template('index.html')
+    return render_template('welcome.html', login=session["name"])
 
 #регистрация
 
@@ -54,6 +60,7 @@ def auth():
         password = request.form['password']
 
         password = hash_password(password)
+        print(password)
 
         cursor.execute("SELECT * FROM USERS WHERE login='%s' AND password='%s'"%(login, password))
         user = cursor.fetchall()
@@ -62,6 +69,7 @@ def auth():
 
         if user:
             if(user[0][3]==password):
+                session["name"] = login
                 return render_template("welcome.html", login=login)
             
         connect.commit()
@@ -122,4 +130,10 @@ def reset(token):
 
         return redirect("/auth")
     return render_template("resetpassword.html")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return render_template("index.html")
+
 
