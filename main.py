@@ -29,7 +29,7 @@ cursor = connect.cursor()
 def welcome():
     if not session.get("name"):
         return render_template('index.html')
-    return render_template('welcome.html', login=session["name"])
+    return render_template('profil.html', login=session["name"])
 
 #регистрация
 
@@ -67,13 +67,10 @@ def auth():
 
         cursor.execute("SELECT * FROM USERS WHERE login='%s' AND password='%s'"%(login, password))
         user = cursor.fetchall()
-
-        print(user)
-
         if user:
             if(user[0][3]==password):
                 session["name"] = login
-                return render_template("welcome.html", login=login)
+                return render_template("profil.html", login=login)
             
         connect.commit()
         connect.close()
