@@ -1,24 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js" integrity="sha512-U31kSZRk+D1JwQjK0y0ES3qPRReaFk64zW+9vEM/z4idqKj+/7mUxdW5U6+5M6J5IXjUL8LcW1zlLlfFJb/WRg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script type="text/javascript" charset="utf-8">
-        var socket = io.connect('http://' + document.domain + ':' + location.port);
-        socket.on('message', function(msg) {
-            var li = document.createElement('li');
-            li.innerHTML = msg;
-            document.getElementById('messages').appendChild(li);
-        });
-        function sendMessage() {
-            var message = document.getElementById('message').value;
-            socket.emit('message', message);
-            document.getElementById('message').value = '';
-        }
-    </script>
 </head>
 <body>
-    <input id="message" type="text" placeholder="Type your message">
-    <button onclick="sendMessage()">Send</button>
-    <ul id="messages"></ul>
+
+    <form id="message-form">
+        <input type="text" id="message-input">
+        <button type="submit">Send</button>
+      </form>
+      <ul id="message-list"></ul>
+
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
+  <script type="text/javascript">
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+socket.on('connect', function() {
+  console.log('Connected!');
+});
+
+socket.on('message', function(data) {
+  var li = $('<li>').text(data.message);
+  $('#message-list').append(li);
+});
+
+$(function() {
+  $('#message-form').submit(function(event) {
+    event.preventDefault();
+    var messageInput = $('#message-input');
+    var message = messageInput.val();
+    messageInput.val('');
+    socket.emit('send', { message: message });
+  });
+});
+  </script>
+
 </body>
 </html>
