@@ -1,6 +1,4 @@
 from flask_mail import Mail
-from main import app
-
 
 def mail_config(app):
     app.config['MAIL_SERVER']='smtp.gmail.com'

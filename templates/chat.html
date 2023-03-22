@@ -8,9 +8,13 @@
     <form id="message-form">
         <input type="text" id="message-input">
         <input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
-        <button type="submit">Send</button>
+        <button type="submit">Отправить</button>
       </form>
-      <ul id="message-list"></ul>
+      <ul id="message-list">
+      {% for message in messages %}
+            <li><b>{{message[1]}}</b>: {{message[3]}} <font color="grey">{{message[4]}}</font></li>
+      {% endfor %}
+      </ul>
 
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
@@ -23,8 +27,8 @@ socket.on('connect', function() {
 });
 
 socket.on('message', function(data) {
-  var li = $('<li>').text(data.message);
-  $('#message-list').append(li);
+  document.getElementById("message-list").innerHTML +=
+            "<li><b>"+data.sender_id+"</b>: "+data.message+' <font color="grey">'+data.time+"</font></li>";
 });
 
 $(function() {
