@@ -24,9 +24,15 @@ def welcome():
 def chat(user_id):
     if not session.get("name"):
         return render_template('index.html')
-    messages = db_context.db_context('''Select * from messages 
-        where (messages.user_id_sender = %s and messages.user_id_receiver = %s)
-        or (messages.user_id_sender = %s and messages.user_id_receiver = %s)'''%(session["user_id"],user_id,user_id,session["user_id"]))
+    #messages = db_context.db_context('''Select * from messages 
+     #   where (messages.user_id_sender = %s and messages.user_id_receiver = %s)
+      #  or (messages.user_id_sender = %s and messages.user_id_receiver = %s)'''%(session["user_id"],user_id,user_id,session["user_id"]))
+    
+    messages = db_context.db_context('''Select users.login, messages.message_text, messages.message_datetime from users, messages 
+        where users.id=messages.user_id_sender and ((messages.user_id_sender = %s and messages.user_id_receiver = %s)
+        or (messages.user_id_sender = %s and messages.user_id_receiver = %s))'''%(session["user_id"],user_id,user_id,session["user_id"]))
+
+    print(messages)
     return render_template('chat.html', user_id_receiver = user_id, messages = messages)
 
 #выход
@@ -65,7 +71,7 @@ def handle_send(data):
         VALUES (%s, %s, '%s', '%s')
     '''%(session["user_id"], user_id_receiver, message, time),commit=True)
     print('ffffff', message)
-    socketio.emit('message', {'message': message, "sender_id" : session["user_id"], "time" : time})
+    socketio.emit('message', {'message': message, "sender" : session["name"], "time" : time})
 
 if __name__ == '__main__':
     socketio.run(app)

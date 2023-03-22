@@ -12,7 +12,7 @@
       </form>
       <ul id="message-list">
       {% for message in messages %}
-            <li><b>{{message[1]}}</b>: {{message[3]}} <font color="grey">{{message[4]}}</font></li>
+            <li><b>{{message[0]}}</b>: {{message[1]}} <font color="grey">{{message[2]}}</font></li>
       {% endfor %}
       </ul>
 
@@ -28,7 +28,7 @@ socket.on('connect', function() {
 
 socket.on('message', function(data) {
   document.getElementById("message-list").innerHTML +=
-            "<li><b>"+data.sender_id+"</b>: "+data.message+' <font color="grey">'+data.time+"</font></li>";
+            "<li><b>"+data.sender+"</b>: "+data.message+' <font color="grey">'+data.time+"</font></li>";
 });
 
 $(function() {
