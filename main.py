@@ -47,7 +47,6 @@ def regist():
         '''%(login, email, password))
 
         connect.commit()
-        connect.close()
     return render_template("regist.html")
 
 #зашифровка пароля
@@ -73,7 +72,6 @@ def auth():
                 return render_template("profil.html", login=login)
             
         connect.commit()
-        connect.close()
     return render_template("auth.html")
 
 #создание рандомного числа 

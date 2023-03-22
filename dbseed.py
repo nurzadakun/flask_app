@@ -12,6 +12,7 @@ CREATE TABLE users(
     login VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(50) NOT NULL,
-    reset_token TEXT DEFAULT NULL
+    reset_token TEXT DEFAULT NULL,
+    status TEXT
 )''')
 connection.commit()
