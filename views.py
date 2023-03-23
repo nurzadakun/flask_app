@@ -1,7 +1,7 @@
 from flask import render_template, session, redirect, request, url_for
 import db_context, functions
 from datetime import datetime
-from main import socketio
+from main import socketio, mail
 from flask_mail import Message
 
 
