@@ -1,16 +1,43 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-    <title>Socket.IO Example</title>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.js"></script>
-    <script>
-      var socket = io.connect('http://' + document.domain + ':' + location.port);
-      socket.on('connect', function() {
-        console.log('Connected!');
-      });
-    </script>
-  </head>
-  <body>
-    <h1>Socket.IO Example</h1>
-  </body>
+<head>
+</head>
+<body>
+
+    <form id="message-form">
+        <input type="text" id="message-input">
+        <input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
+        <button type="submit">Send</button>
+      </form>
+      <ul id="message-list"></ul>
+
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
+  <script type="text/javascript">
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+socket.on('connect', function() {
+  console.log('Connected!');
+});
+
+socket.on('message', function(data) {
+  var li = $('<li>').text(data.message);
+  $('#message-list').append(li);
+});
+
+$(function() {
+  $('#message-form').submit(function(event) {
+    event.preventDefault();
+    var messageInput = $('#message-input');
+    var message = messageInput.val();
+    var user_id_receiverInput = $('#user_id_receiver');
+    var user_id_receiver = user_id_receiverInput.val();
+    messageInput.val('');
+    socket.emit('send', { message: message, user_id_receiver: user_id_receiver });
+  });
+});
+  </script>
+
+</body>
 </html>
