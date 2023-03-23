@@ -9,7 +9,8 @@
     <!-- 
         Для Алины:
           отображает видео с камеры(при открытии страницы сперва появляется разрешение на включении камеры)
-    --> 
+    -->
+
     <video autoplay="true" id="videoElement"></video>
 
     <a href="/">Профиль</a>
@@ -29,11 +30,8 @@
 
           это можно сделать с помощью onclick
          -->
-
-        <button onclick="document.querySelector()"></button>
-        <div id="webcam-controls" style="display: block;">
-          <button id="webcam-launcher" type="submit" class="btn"><i class="fa fa-camera" aria-hidden="true">Тестировать камеру</i></button>
-        </div>
+        <button onclick="videostop()" id = "run" type="submit" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
+        </button>
     </form>
       
       <ul id="message-list">
@@ -76,9 +74,10 @@
         Для Алины:
           этот скрипт отвечает за видео
   -->
+
   <script>
     var video = document.querySelector("#videoElement");
-    
+
     if (navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({ video: true })
         .then(function (stream) {
@@ -88,7 +87,8 @@
           console.log("Something went wrong!");
         });
     }
-  </script>
+  </script> 
+
 
 </body>
 </html>
