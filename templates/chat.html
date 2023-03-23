@@ -1,47 +1,88 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css" integrity="sha512-q3eWabyZPc1XTCmF+8/LuE1ozpg5xxn7iO89yfSOd5/oKvyqLngoNGsx8jq92Y8eXJ/IRxQbEC+FGSYxtk2oiw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
 
+    <!-- 
+        Для Алины:
+          отображает видео с камеры(при открытии страницы сперва появляется разрешение на включении камеры)
+    -->
+    <video autoplay="true" id="videoElement"></video>
+
     <a href="/">Профиль</a>
     <form id="message-form">
-        <input type="text" id="message-input">
-        <input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
-        <button type="submit">Отправить</button>
-      </form>
+        <input class="form-control" type="text" id="message-input">
+        <!-- важно, не трогать --><input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
+        <button type="submit" class="btn">Отправить</button>
+
+
+        <input type="file" id="myFile" name="filename">
+        <button type="submit" class="btn"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
+
+        <!-- 
+        Для Алины:
+          нужно чтобы при нажатии этой кнопки показывалось видео с камеры
+         -->
+        <button type="submit" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
+
+        </button>
+    </form>
+      
       <ul id="message-list">
+      <!-- цикл выводит сообщения(логин отправителя, сообщение, время отправления) из БД -->
       {% for message in messages %}
             <li><b>{{message[0]}}</b>: {{message[1]}} <font color="grey">{{message[2]}}</font></li>
       {% endfor %}
       </ul>
 
-  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
   <script type="text/javascript">
+    
     var socket = io.connect('http://' + document.domain + ':' + location.port);
 
-socket.on('connect', function() {
-  console.log('Connected!');
-});
+    socket.on('connect', function() {
+      console.log('Connected!');
+    });
 
-socket.on('message', function(data) {
-  document.getElementById("message-list").innerHTML +=
-            "<li><b>"+data.sender+"</b>: "+data.message+' <font color="grey">'+data.time+"</font></li>";
-});
+    socket.on('message', function(data) {
+      document.getElementById("message-list").innerHTML +=
+                "<li><b>"+data.sender+"</b>: "+data.message+' <font color="grey">'+data.time+"</font></li>";
+    });
 
-$(function() {
-  $('#message-form').submit(function(event) {
-    event.preventDefault();
-    var messageInput = $('#message-input');
-    var message = messageInput.val();
-    var user_id_receiverInput = $('#user_id_receiver');
-    var user_id_receiver = user_id_receiverInput.val();
-    messageInput.val('');
-    socket.emit('send', { message: message, user_id_receiver: user_id_receiver });
-  });
-});
+    $(function() {
+      $('#message-form').submit(function(event) {
+        event.preventDefault();
+        var messageInput = $('#message-input');
+        var message = messageInput.val();
+        var user_id_receiverInput = $('#user_id_receiver');
+        var user_id_receiver = user_id_receiverInput.val();
+        messageInput.val('');
+        socket.emit('send', { message: message, user_id_receiver: user_id_receiver });
+      });
+    });
+  </script>
+  
+
+  <!-- 
+        Для Алины:
+          этот скрипт отвечает за видео
+  -->
+  <script>
+    var video = document.querySelector("#videoElement");
+
+    if (navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(function (stream) {
+          video.srcObject = stream;
+        })
+        .catch(function (err0r) {
+          console.log("Something went wrong!");
+        });
+    }
   </script>
 
 </body>
