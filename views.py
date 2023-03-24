@@ -116,6 +116,9 @@ def handle_send(data):
     message = data['message']
     user_id_receiver = data['user_id_receiver']
 
+    #file = data['file']
+    #print('dgvsdgsgs', file)
+
     db_context.db_context('''
         INSERT INTO messages (user_id_sender, user_id_receiver, message_text, message_datetime)
         VALUES (%s, %s, '%s', '%s')

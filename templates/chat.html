@@ -6,21 +6,26 @@
 </head>
 <body>
 
+  <div class="container-fluid">
+    <div class="row ">
+      <div class="col-12 col-md-4 col-lg-6 text-center" >
+    <img id="img-preview" src="" alt="Image Preview" class="img-thumbnail">
+
+    <a href="/">Профиль</a>
+
     <!-- 
         Для Алины:
           отображает видео с камеры(при открытии страницы сперва появляется разрешение на включении камеры)
     -->
     <video autoplay="true" id="videoElement"></video>
 
-    <a href="/">Профиль</a>
-    <form id="message-form">
+  <form id="message-form">
         <input class="form-control" type="text" id="message-input">
         <!-- важно, не трогать --><input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
-        <button type="submit" class="btn">Отправить</button>
+        <button type="submit" onclick="doupload()" class="btn">Отправить</button>
 
-
-        <input type="file" id="myFile" name="filename">
-        <button type="submit" class="btn"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
+        <input type="file" id="myFile" name="filename"  hidden>
+        <button onclick="open_file()" type="button" class="btn"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
 
         <!-- 
         Для Алины:
@@ -29,7 +34,7 @@
 
           это можно сделать с помощью onclick
          -->
-        <button type="submit" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
+        <button type="button" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
 
         </button>
     </form>
@@ -40,6 +45,10 @@
             <li><b>{{message[0]}}</b>: {{message[1]}} <font color="grey">{{message[2]}}</font></li>
       {% endfor %}
       </ul>
+
+    </div>
+    </div>
+    </div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
@@ -63,12 +72,20 @@
         var message = messageInput.val();
         var user_id_receiverInput = $('#user_id_receiver');
         var user_id_receiver = user_id_receiverInput.val();
+        //var fileInput = $('#myFile');
+        //var file = fileInput.val();
         messageInput.val('');
-        socket.emit('send', { message: message, user_id_receiver: user_id_receiver });
+        //socket.emit('send', { message: message, user_id_receiver: user_id_receiver, file: file });
       });
     });
   </script>
-  
+
+  <!-- скрипт работает при нажатии кнопки для добавления файла -->
+  <script type="text/javascript">
+    function open_file(){
+        document.getElementById('myFile').click();
+    }
+  </script>
 
   <!-- 
         Для Алины:
