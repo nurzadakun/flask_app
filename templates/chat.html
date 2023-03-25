@@ -6,14 +6,20 @@
 </head>
 <body>
 
-    <!-- 
-        Для Алины:
-          отображает видео с камеры(при открытии страницы сперва появляется разрешение на включении камеры)
-    -->
+      <ul id="message-list">
+      <!-- цикл выводит сообщения(логин отправителя, сообщение, время отправления) из БД -->
+      {% for message in messages %}
+            <li><b>{{message[0]}}</b>: {{message[1]}} <font color="grey">{{message[2]}}</font></li>
+      {% endfor %}
+      </ul>
 
-
-    <a href="/">Профиль</a>
-    <form id="message-form">
+      <!--
+        
+      -->
+      <a href="/">Профиль</a>
+      
+      
+      <form id="message-form">
         <input class="form-control" type="text" id="message-input">
         <!-- важно, не трогать --><input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
         <button type="submit" class="btn">Отправить</button>
@@ -21,24 +27,39 @@
 
         <input type="file" id="myFile" name="filename">
         <button type="submit" class="btn"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
+        
+        <!-- 
+        Скидывает диалог вниз
+        -->
+        <script src="https://snipp.ru/cdn/jquery/2.1.1/jquery.min.js"></script>
+        <script>
+          var timer;
+          var isPaused = false;
+           
+          $(window).on('wheel', function(){
+            isPaused = true;
+            clearTimeout(timer);
+            timer = window.setTimeout(function(){
+              isPaused = false;
+            }, 1000);   
+          });
+           
+          window.setInterval(function(){          
+            if(!isPaused){
+              window.scrollTo(0, document.body.scrollHeight);
+            }
+          }, 500);</script>
 
         <!-- 
         Для Алины:
           нужно чтобы только при нажатии этой кнопки показывалось видео с камеры
           кнопка в виде изображения камеры
-
           это можно сделать с помощью onclick
          -->
           <button onclick="document.location='videochat.html'" id = "run" type="submit" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
          </button>
     </form>
-      
-      <ul id="message-list">
-      <!-- цикл выводит сообщения(логин отправителя, сообщение, время отправления) из БД -->
-      {% for message in messages %}
-            <li><b>{{message[0]}}</b>: {{message[1]}} <font color="grey">{{message[2]}}</font></li>
-      {% endfor %}
-      </ul>
+
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
