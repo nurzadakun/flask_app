@@ -115,12 +115,6 @@ def files():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
         return "ok"
 
-'''if request.method == 'POST': 
-        f = request.files.getlist("file")
-        print(f)
-        for file in f:
-            file.save(file.filename)'''
-
 #отправка сообщения и его добавление в БД
 @socketio.on('send')
 def handle_send(data):
