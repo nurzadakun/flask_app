@@ -3,20 +3,39 @@
 <head>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css" integrity="sha512-q3eWabyZPc1XTCmF+8/LuE1ozpg5xxn7iO89yfSOd5/oKvyqLngoNGsx8jq92Y8eXJ/IRxQbEC+FGSYxtk2oiw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <style>
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #FFF;
+      border-bottom-color: #FF3D00;
+      border-radius: 50%;
+      display: inline-block;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+      }
+  
+      @keyframes rotation {
+      0% {
+          transform: rotate(0deg);
+      }
+      100% {
+          transform: rotate(360deg);
+      }
+      } 
+  </style>
+
 </head>
 <body>
-    <video id="videoElement"></video>
-
-      <ul id="message-list">
   <header class="navbar fixed-top border-bottom bg-light">
     <a class="btn btn-outline-secondary" href="/">Профиль</a>
   </header>
   <div class="container-fluid">
-    <div class="row justify-content-center">
-      <div class="col-12 col-md-4 col-lg-6" >
-    <img id="img-preview" src="" alt="Image Preview" hidden class="img-thumbnail">
+  <div class="row justify-content-center">
+  <div class="col-12 col-md-4 col-lg-6" >
 
-    <div id="message-list" style="margin-top: 20px;overflow-y: scroll;
+    <div id="message-list" style="margin-top: 75px;margin-bottom: 5px;overflow-y: scroll;
     overflow-x: hidden;
     max-height: 350px;">
       <!-- цикл выводит сообщения(логин отправителя, сообщение, время отправления) из БД -->
@@ -25,7 +44,6 @@
       {% endfor %}
     </div>
       
-      <form id="message-form">
         <form id="message-form">
           <input class="form-control" type="text" id="message-input" style="margin-bottom: 10px;">
           <!-- важно, не трогать --><input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
@@ -34,22 +52,28 @@
           <input type="file" id="myFile" name="filename" multiple="multiple" >
           <button onclick="open_file()" type="button" class="btn"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
 
-          <button id="turnOnCamera" type="button" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
-          </button>
-          <button id="turnOffCamera" type="button" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
+          <button  type="button" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
           </button>
         </form>
 
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">Видеозвонок</button>
-
+        <button type="button" id="turnOnCamera" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">Видеозвонок</button>
+        
         <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
-              <div class="modal-body">
-                
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle">Видеозвонок</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
               </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+              <div class="modal-body">
+                <div class="container-fluid">
+                  <div class="row align-items-center justify-content-center">
+                    <div class="col-md-4"><video id="videoElement"></video></div>
+                    <div class="col-md-4 ml-auto"><span class="loader"></span></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -59,8 +83,9 @@
     </div>
     </div>
 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
   <script type="text/javascript">
     const previewImage = document.getElementById("img-preview");
     //previewImage.src = "Hby9VyjlKR4.jpg";
@@ -104,8 +129,6 @@
       });
     });
   </script>
-  <script type="text/javascript" src="/js/video_chat.js">
-    
-</script>
+  <script type="text/javascript" src="/js/video_chat.js"></script>
 </body>
 </html>
