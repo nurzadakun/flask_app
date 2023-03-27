@@ -3,7 +3,10 @@ from flask_session import Session
 from flask_socketio import SocketIO
 import mail_config
 
-app = Flask(__name__)
+app = Flask(__name__,
+    static_url_path='', 
+    static_folder='files',
+)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
@@ -29,6 +32,8 @@ app.add_url_rule('/auth', view_func=views.auth, methods=["POST","GET"])
 app.add_url_rule('/forgot_password', view_func=views.forgot, methods=["POST","GET"])
 
 app.add_url_rule('/reset_password/<token>', view_func=views.reset, methods=["POST","GET"])
+
+app.add_url_rule('/files', view_func=views.files, methods=["POST","GET"])
 
 if __name__ == '__main__':
     socketio.run(app)

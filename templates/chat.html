@@ -8,22 +8,30 @@
     <video id="videoElement"></video>
 
       <ul id="message-list">
+  <header class="navbar fixed-top border-bottom bg-light">
+    <a class="btn btn-outline-secondary" href="/">Профиль</a>
+  </header>
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-4 col-lg-6" >
+    <img id="img-preview" src="/100388204_p0.png" alt="Image Preview" class="img-thumbnail">
+
+
+    <video autoplay="true" id="videoElement"></video>
+
+    <div id="message-list" style="margin-top: 20px;">
       <!-- цикл выводит сообщения(логин отправителя, сообщение, время отправления) из БД -->
       {% for message in messages %}
-            <li><b>{{message[0]}}</b>: {{message[1]}} <font color="grey">{{message[2]}}</font></li>
+            <p><b>{{message[0]}}</b>: {{message[1]}} <font class="small" color="grey">{{message[2]}}</font></p>
       {% endfor %}
       </ul>
-
-      <a href="/">Профиль</a>
       
       <form id="message-form">
-        <input class="form-control" type="text" id="message-input">
-        <!-- важно, не трогать --><input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
-        <button type="submit" class="btn">Отправить</button>
+        <form id="message-form">
+          <input class="form-control" type="text" id="message-input" style="margin-bottom: 10px;">
+          <!-- важно, не трогать --><input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
+          <button type="submit" class="btn btn-info">Отправить</button>
 
-
-        <input type="file" id="myFile" name="filename">
-        <button type="submit" class="btn"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
         
         <!-- 
         Скидывает диалог вниз
@@ -47,13 +55,6 @@
             }
           }, 500);</script>
 
-        <!-- 
-        Для Алины:
-          нужно чтобы только при нажатии этой кнопки показывалось видео с камеры
-          кнопка в виде изображения камеры
-          это можно сделать с помощью onclick
-          onclick="document.location='videochat.html'"
-         -->
           <button id="turnOnCamera" type="button" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
           </button>
           <button id="turnOffCamera" type="button" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
@@ -61,10 +62,16 @@
 
     </form>
 
+    </div>
+    </div>
+    </div>
+    </div>
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.0/socket.io.min.js"></script>
   <script type="text/javascript">
+    const previewImage = document.getElementById("img-preview");
+    //previewImage.src = "Hby9VyjlKR4.jpg";
     
     var socket = io.connect('http://' + document.domain + ':' + location.port);
 
@@ -74,7 +81,7 @@
 
     socket.on('message', function(data) {
       document.getElementById("message-list").innerHTML +=
-                "<li><b>"+data.sender+"</b>: "+data.message+' <font color="grey">'+data.time+"</font></li>";
+                "<p><b>"+data.sender+"</b>: "+data.message+' <font class="small" color="grey">'+data.time+"</font></p>";
     });
 
     $(function() {
@@ -86,6 +93,22 @@
         var user_id_receiver = user_id_receiverInput.val();
         messageInput.val('');
         socket.emit('send', { message: message, user_id_receiver: user_id_receiver });
+        if(messageInput.val() !== ""){
+          var message = messageInput.val();
+          var user_id_receiverInput = $('#user_id_receiver');
+          var user_id_receiver = user_id_receiverInput.val();
+
+          var fileInput = $('#myFile');
+          const file = document.getElementById("myFile").files[0];
+          let formData = new FormData();
+          formData.append("file", file);
+          fetch('/files', {method: "POST", body:formData});
+          const previewImage = document.getElementById("img-preview");
+          previewImage.src = "files/Hby9VyjlKR4.jpg";
+
+          messageInput.val('');
+          socket.emit('send', { message: message, user_id_receiver: user_id_receiver});
+        }
       });
     });
   </script>

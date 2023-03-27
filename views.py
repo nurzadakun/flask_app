@@ -1,8 +1,10 @@
 from flask import render_template, session, redirect, request, url_for
 import db_context, functions
 from datetime import datetime
+from fileinput import filename
 from main import socketio, mail
 from flask_mail import Message
+
 
 
 #профиль
@@ -106,6 +108,11 @@ def reset(token):
         return redirect("/auth")
     return render_template("resetpassword.html")
 
+def files():
+   if request.method == 'POST':
+      if request.method == 'POST':  
+        f = request.files['file']
+        f.save(f.filename) 
 
 #отправка сообщения и его добавление в БД
 @socketio.on('send')
