@@ -5,6 +5,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css" integrity="sha512-q3eWabyZPc1XTCmF+8/LuE1ozpg5xxn7iO89yfSOd5/oKvyqLngoNGsx8jq92Y8eXJ/IRxQbEC+FGSYxtk2oiw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
+    <video id="videoElement"></video>
 
       <ul id="message-list">
       <!-- цикл выводит сообщения(логин отправителя, сообщение, время отправления) из БД -->
@@ -13,11 +14,7 @@
       {% endfor %}
       </ul>
 
-      <!--
-        
-      -->
       <a href="/">Профиль</a>
-      
       
       <form id="message-form">
         <input class="form-control" type="text" id="message-input">
@@ -55,9 +52,13 @@
           нужно чтобы только при нажатии этой кнопки показывалось видео с камеры
           кнопка в виде изображения камеры
           это можно сделать с помощью onclick
+          onclick="document.location='videochat.html'"
          -->
-          <button onclick="document.location='videochat.html'" id = "run" type="submit" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
-         </button>
+          <button id="turnOnCamera" type="button" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
+          </button>
+          <button id="turnOffCamera" type="button" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
+          </button>
+
     </form>
 
 
@@ -88,11 +89,39 @@
       });
     });
   </script>
-  
+  <script>
+    $(document).ready(() => {
+      var localStream;
+      
+      $("#turnOnCamera").click(() => {
+        var video = document.querySelector("#videoElement");
+        // video.setAttribute('playsinline', '');
+        video.setAttribute('autoplay', '');
+        // video.setAttribute('muted', '');
+        video.style.width = '200px';
+        video.style.height = '200px';
+        if (navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia({ video: true })
+          .then(function (stream) {
+            localStream = stream;
+            video.srcObject = stream;
+          })
+          .catch(function (err0r) {
+            console.log("Something went wrong!");
+          });
+        }
+      });
 
-  <!-- 
-        Для Алины:
-          этот скрипт отвечает за видео
-  -->
+      $('#turnOffCamera').click(() => {
+        var video = document.querySelector("#videoElement");
+        video.pause();
+        video.src = "";
+        // video.setAttribute('autoplay', '');
+        video.style.width = '0px';
+        video.style.height = '0px';
+        localStream.getTracks()[0].stop();
+      });
+    });
+</script>
 </body>
 </html>
