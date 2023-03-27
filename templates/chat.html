@@ -5,6 +5,9 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css" integrity="sha512-q3eWabyZPc1XTCmF+8/LuE1ozpg5xxn7iO89yfSOd5/oKvyqLngoNGsx8jq92Y8eXJ/IRxQbEC+FGSYxtk2oiw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
+    <video id="videoElement"></video>
+
+      <ul id="message-list">
   <header class="navbar fixed-top border-bottom bg-light">
     <a class="btn btn-outline-secondary" href="/">Профиль</a>
   </header>
@@ -12,13 +15,6 @@
     <div class="row justify-content-center">
       <div class="col-12 col-md-4 col-lg-6" >
     <img id="img-preview" src="" alt="Image Preview" hidden class="img-thumbnail">
-
-    <!-- 
-        Для Алины:
-          отображает видео с камеры(при открытии страницы сперва появляется разрешение на включении камеры)
-    -->
-
-    <video autoplay="true" id="videoElement"></video>
 
     <div id="message-list" style="margin-top: 20px;overflow-y: scroll;
     overflow-x: hidden;
@@ -28,25 +24,36 @@
             <p><b>{{message[0]}}</b>: {{message[1]}} <font class="small" color="grey">{{message[2]}}</font></p>
       {% endfor %}
     </div>
+      
+      <form id="message-form">
+        <form id="message-form">
+          <input class="form-control" type="text" id="message-input" style="margin-bottom: 10px;">
+          <!-- важно, не трогать --><input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
+          <button type="submit" class="btn btn-info">Отправить</button>
 
-    <form id="message-form" style="margin-bottom: 20px; margin-top: 20px">
-      <input class="form-control" type="text" id="message-input" style="margin-bottom: 10px;">
-      <!-- важно, не трогать --><input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
-      <button type="submit" class="btn btn-info">Отправить</button>
+          <input type="file" id="myFile" name="filename" multiple="multiple" >
+          <button onclick="open_file()" type="button" class="btn"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
 
-      <input type="file" id="myFile" name="filename" multiple="multiple" >
-      <button onclick="open_file()" type="button" class="btn"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
+          <button id="turnOnCamera" type="button" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
+          </button>
+          <button id="turnOffCamera" type="button" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
+          </button>
+        </form>
 
-      <!-- 
-      Для Алины:
-        нужно чтобы только при нажатии этой кнопки показывалось видео с камеры
-        кнопка в виде изображения камеры
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">Видеозвонок</button>
 
-        это можно сделать с помощью onclick
-       -->
-      <button onclick="videostop()" id = "run" type="button" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
-      </button>
-  </form>
+        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-body">
+                
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+              </div>
+            </div>
+          </div>
+        </div>
 
     </div>
     </div>
@@ -97,33 +104,8 @@
       });
     });
   </script>
-
-  <!-- скрипт работает при нажатии кнопки для добавления файла -->
-  <script type="text/javascript">
-    function open_file(){
-        document.getElementById('myFile').click();
-    }
-  </script>
-
-  <!-- 
-        Для Алины:
-          этот скрипт отвечает за видео
-  -->
-
-  <script>
-    var video = document.querySelector("#videoElement");
-
-    if (navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(function (stream) {
-          video.srcObject = stream;
-        })
-        .catch(function (err0r) {
-          console.log("Something went wrong!");
-        });
-    }
-  </script> 
-
-
+  <script type="text/javascript" src="/js/video_chat.js">
+    
+</script>
 </body>
 </html>

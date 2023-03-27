@@ -5,7 +5,7 @@ import mail_config
 
 app = Flask(__name__,
     static_url_path='', 
-    static_folder='files',
+    static_folder='static',
 )
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
