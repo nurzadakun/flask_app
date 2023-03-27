@@ -2,9 +2,9 @@ from flask import render_template, session, redirect, request, url_for
 import db_context, functions
 from datetime import datetime
 from fileinput import filename
-from main import socketio, mail
+from main import socketio, mail, app
 from flask_mail import Message
-
+import os
 
 
 #профиль
@@ -109,10 +109,17 @@ def reset(token):
     return render_template("resetpassword.html")
 
 def files():
-   if request.method == 'POST':
-      if request.method == 'POST':  
-        f = request.files['file']
-        f.save(f.filename) 
+    if request.method == "POST":
+        files = request.files.getlist("files[]")
+        for file in files:
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+        return "ok"
+
+'''if request.method == 'POST': 
+        f = request.files.getlist("file")
+        print(f)
+        for file in f:
+            file.save(file.filename)'''
 
 #отправка сообщения и его добавление в БД
 @socketio.on('send')

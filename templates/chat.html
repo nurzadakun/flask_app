@@ -79,10 +79,14 @@
           var user_id_receiver = user_id_receiverInput.val();
 
           const file = document.getElementById("myFile").files;
-          debugger
-          console.log(file);
           let formData = new FormData();
-          formData.append("file", file);
+          
+          var totalfiles = document.getElementById('myFile').files.length;
+          for (var index = 0; index < totalfiles; index++) {
+            formData.append("files[]", document.getElementById('myFile').files[index]);
+          }
+
+          console.log(formData)
           fetch('/files', {method: "POST", body:formData});
           //const previewImage = document.getElementById("img-preview");
           //previewImage.src = "/" + file.name;

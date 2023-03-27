@@ -9,6 +9,7 @@ app = Flask(__name__,
 )
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
+app.config['UPLOAD_FOLDER'] = "files2"
 Session(app)
 socketio = SocketIO(app, max_http_buffer_size=10000000)
 
