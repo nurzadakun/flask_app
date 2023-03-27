@@ -24,5 +24,13 @@ CREATE TABLE messages(
     FOREIGN KEY (user_id_sender) REFERENCES users (id),
     FOREIGN KEY (user_id_receiver) REFERENCES users (id)
 )''')
+
+#def delete_messeges():
+#   cursor.execute("DELETE FROM messages WHERE user_id_sender = 1")
+#    connection.execute()
+
+
+delete_messeges()
+
 connection.commit()
 connection.close()
