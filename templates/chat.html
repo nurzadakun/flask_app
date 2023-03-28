@@ -7,53 +7,33 @@
 <body>
     <video id="videoElement"></video>
 
-      <ul id="message-list">
-  <header class="navbar fixed-top border-bottom bg-light">
-    <a class="btn btn-outline-secondary" href="/">Профиль</a>
-  </header>
-  <div class="container-fluid">
-    <div class="row justify-content-center">
-      <div class="col-12 col-md-4 col-lg-6" >
-    <img id="img-preview" src="/100388204_p0.png" alt="Image Preview" class="img-thumbnail">
+    <header class="navbar fixed-top border-bottom bg-light">
+      <a class="btn btn-outline-secondary" href="/">Профиль</a>
+    </header>
+    <div class="container-fluid">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-4 col-lg-6" >
+      <img id="img-preview" src="" alt="Image Preview" hidden class="img-thumbnail">
 
+          <div id="message-list" style="margin-top: 20px;overflow-y: scroll;
+          overflow-x: hidden;
+          max-height: 350px;">
+            <!-- цикл выводит сообщения(логин отправителя, сообщение, время отправления) из БД -->
+            {% for message in messages %}
+                  <p><b>{{message[0]}}</b>: {{message[1]}} <font class="small" color="grey">{{message[2]}}</font></p>
+            {% endfor %}
+            
+          </div>
+          
 
-    <video autoplay="true" id="videoElement"></video>
+          <form id="message-form" style="margin-bottom: 20px; margin-top: 20px">
+            <input class="form-control" type="text" id="message-input" style="margin-bottom: 10px;">
+            <!-- важно, не трогать --><input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
+            <button type="submit" class="btn btn-info">Отправить</button>
 
-    <div id="message-list" style="margin-top: 20px;">
-      <!-- цикл выводит сообщения(логин отправителя, сообщение, время отправления) из БД -->
-      {% for message in messages %}
-            <p><b>{{message[0]}}</b>: {{message[1]}} <font class="small" color="grey">{{message[2]}}</font></p>
-      {% endfor %}
-      </ul>
-      
-      <form id="message-form">
-        <form id="message-form">
-          <input class="form-control" type="text" id="message-input" style="margin-bottom: 10px;">
-          <!-- важно, не трогать --><input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
-          <button type="submit" class="btn btn-info">Отправить</button>
-
-        
-        <!-- 
-        Скидывает диалог вниз
-        -->
-        <script src="https://snipp.ru/cdn/jquery/2.1.1/jquery.min.js"></script>
-        <script>
-          var timer;
-          var isPaused = false;
-           
-          $(window).on('wheel', function(){
-            isPaused = true;
-            clearTimeout(timer);
-            timer = window.setTimeout(function(){
-              isPaused = false;
-            }, 1000);   
-          });
-           
-          window.setInterval(function(){          
-            if(!isPaused){
-              window.scrollTo(0, document.body.scrollHeight);
-            }
-          }, 500);</script>
+            <input type="file" id="myFile" name="filename" multiple="multiple" >
+            <button onclick="open_file()" type="button" class="btn"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
+            
 
           <button id="turnOnCamera" type="button" class="btn"><i class="fa fa-camera" aria-hidden="true"></i>
           </button>
@@ -98,13 +78,14 @@
           var user_id_receiverInput = $('#user_id_receiver');
           var user_id_receiver = user_id_receiverInput.val();
 
-          var fileInput = $('#myFile');
-          const file = document.getElementById("myFile").files[0];
+          const file = document.getElementById("myFile").files;
+          debugger
+          console.log(file);
           let formData = new FormData();
           formData.append("file", file);
           fetch('/files', {method: "POST", body:formData});
-          const previewImage = document.getElementById("img-preview");
-          previewImage.src = "files/Hby9VyjlKR4.jpg";
+          //const previewImage = document.getElementById("img-preview");
+          //previewImage.src = "/" + file.name;
 
           messageInput.val('');
           socket.emit('send', { message: message, user_id_receiver: user_id_receiver});
