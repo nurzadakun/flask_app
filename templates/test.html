@@ -15,11 +15,18 @@
         <script>
             
             var socket = io.connect('http://' + document.domain + ':' + location.port);
-    
                 function test() {
                 var test = document.getElementById("testbut");
                 socket.emit('test', { test:test})
             }
+
+            socket.on('user_call', function(data) {
+                document.getElementById("message-list").innerHTML +=
+                        "<p><b>"+data.sender+"</b>: "+data.message+' <font class="small" color="grey">'+data.time+"</font></p>";
+
+                var element = document.getElementById("message-list");
+                element.scrollTop = element.scrollHeight;
+            });
             </script>
             jfhdj
             132
