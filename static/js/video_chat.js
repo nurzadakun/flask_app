@@ -19,14 +19,4 @@ $(document).ready(() => {
         });
       }
     });
-
-    $('#turnOffCamera').click(() => {
-      var video = document.querySelector("#videoElement");
-      video.pause();
-      video.src = "";
-      // video.setAttribute('autoplay', '');
-      video.style.width = '0px';
-      video.style.height = '0px';
-      localStream.getTracks()[0].stop();
-    });
-  });
+});

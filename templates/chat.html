@@ -43,16 +43,19 @@
             <p><b>{{message[0]}}</b>: {{message[1]}} <font class="small" color="grey">{{message[2]}}</font></p>
       {% endfor %}
     </div>
+
+
       
         <form id="message-form">
           <input class="form-control" type="text" id="message-input" style="margin-bottom: 10px;">
           <!-- важно, не трогать --><input type="hidden" value="{{user_id_receiver}}" id="user_id_receiver">
+          <input type="hidden" value="{{user_id_sender}}" id="user_id_sender">
           <button type="submit" class="btn btn-info">Отправить</button>
 
           <input type="file" id="myFile" name="filename" multiple="multiple" hidden>
           <button onclick="open_file()" type="button" class="btn"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
 
-          <button type="button" id="turnOnCamera" class="btn" data-toggle="modal" data-target="#exampleModalCenter"><i class="fa fa-camera" aria-hidden="true"></i></button>
+          <button type="button" onclick="call()" id="turnOnCamera" class="btn" data-toggle="modal" data-target="#exampleModalCenter"><i class="fa fa-camera" aria-hidden="true"></i></button>
         </form>
         
         <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
@@ -61,7 +64,9 @@
               <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLongTitle">Видеозвонок</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
+                  <span aria-hidden="true">&times;
+
+                  </span>
                 </button>
               </div>
               <div class="modal-body">
@@ -75,6 +80,33 @@
             </div>
           </div>
         </div>
+
+
+
+        <div class="modal fade" id="vamzvonit" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLongTitle"><span id="callerName"></span> вызывает ...</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;
+
+                  </span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="container-fluid">
+                  <div class="row align-items-center justify-content-center">
+                    <div class="col-md-4"><video id="videoElement"></video></div>
+                    <div class="col-md-4 ml-auto"><span class="loader"></span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
 
     </div>
     </div>
@@ -93,6 +125,7 @@
     });
 
     socket.on('message', function(data) {
+      debugger
       document.getElementById("message-list").innerHTML +=
                 "<p><b>"+data.sender+"</b>: "+data.message+' <font class="small" color="grey">'+data.time+"</font></p>";
       
@@ -126,6 +159,24 @@
           socket.emit('send', { message: message, user_id_receiver: user_id_receiver});
         }
       });
+    });
+
+    function call(){
+      var user_id_sender = document.getElementById("user_id_sender");
+      var user_id_receiver = document.getElementById("user_id_receiver");
+      socket.emit('call', { user_id_sender:user_id_sender.value,user_id_receiver:user_id_receiver.value});
+    }
+
+    socket.on('user_call', function(event) {
+  
+      var user_id_sender = document.getElementById("user_id_sender").value;
+      if(user_id_sender == event.receiver){
+        
+        $('#callerName').text(event.caller)
+        $('#vamzvonit').modal('show')
+      }
+
+      
     });
     
     //делает так чтобы сообщения показывались снизу

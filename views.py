@@ -7,6 +7,10 @@ from flask_mail import Message
 import os
 
 
+def test():
+    return render_template('test.html')
+
+
 #профиль
 #session["name"] - это логин пользователя
 def welcome():
@@ -31,7 +35,7 @@ def chat(user_id):
     messages = db_context.db_context('''Select users.login, messages.message_text, messages.message_datetime from users, messages 
         where users.id=messages.user_id_sender and ((messages.user_id_sender = %s and messages.user_id_receiver = %s)
         or (messages.user_id_sender = %s and messages.user_id_receiver = %s))'''%(session["user_id"],user_id,user_id,session["user_id"]))
-    return render_template('chat.html', user_id_receiver = user_id, messages = messages)
+    return render_template('chat.html', user_id_receiver = user_id, messages = messages, user_id_sender = session["user_id"])
 
 
 #выход пользователя 
@@ -133,3 +137,18 @@ def handle_send(data):
     '''%(session["user_id"], user_id_receiver, message, time),commit=True)
 
     socketio.emit('message', {'message': message, "sender" : session["name"], "time" : time})
+
+@socketio.on('call')
+def handle_send(data):
+    user_id_sender = data.get('user_id_sender')
+    user_id_receiver = data.get('user_id_receiver')
+
+    login = db_context.db_context('''
+    SELECT LOGIN FROM USERS WHERE id = %s
+    '''%user_id_sender)
+
+    socketio.emit('user_call', {
+        "sender" : user_id_sender, 
+        "receiver" : user_id_receiver,
+        "caller" : login[0][0]
+    })
