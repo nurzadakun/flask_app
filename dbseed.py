@@ -30,7 +30,7 @@ CREATE TABLE messages(
 #    connection.execute()
 
 
-delete_messeges()
+#delete_messeges()
 
 connection.commit()
 connection.close()
