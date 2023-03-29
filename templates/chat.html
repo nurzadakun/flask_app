@@ -4,6 +4,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css" integrity="sha512-q3eWabyZPc1XTCmF+8/LuE1ozpg5xxn7iO89yfSOd5/oKvyqLngoNGsx8jq92Y8eXJ/IRxQbEC+FGSYxtk2oiw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+  <!-- гифка загрузки -->
   <style>
     .loader {
       width: 48px;
@@ -63,63 +64,43 @@
           <input type="file" id="myFile" name="filename" multiple="multiple" hidden>
           <button onclick="open_file()" type="button" class="btn"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
 
-          <button type="button" onclick="call()" id="turnOnCamera" class="btn" data-toggle="modal" data-target="#exampleModalCenter"><i class="fa fa-camera" aria-hidden="true"></i></button>
+          <button type="button" onclick="call()" id="turnOnCamera" class="btn" data-toggle="modal" data-target="#call_window"><i class="fa fa-camera" aria-hidden="true"></i></button>
         </form>
         
-        <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal fade" id="call_window" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle">Видеозвонок</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <h5 class="modal-title" id="exampleModalLongTitle"><span id="header_text"></span></h5>
+                <button type="button"  class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;
                   </span>
                 </button>
               </div>
               <div class="modal-body">
                 <div class="container-fluid">
-                  <div class="row align-items-center justify-content-center">
+                  <div class="row align-items-center">
                     <div class="col-md-4"><video id="videoElement"></video></div>
-                    <div class="col-md-4 ml-auto"><span class="loader"></span></div>
+                    <div class="col-md-4 text-center"><span id="loader" class="loader"></span></div>
                   </div>
+                  <div id="call_buttons" class="row align-items-center justify-content-center">
+                    <div class="col-md-4 text-center">
+                      <button type="button" onclick="accept()" class="green">
+                        Принять вызов
+                      </button>
+                    </div>
+                    <div class="col-md-4 ml-auto text-center">
+                      <button onclick="decline()" type="button" class="red">
+                        Сбросить вызов
+                      </button>
+                    </div>
+                  </div>
+                  <h6><span id="body_text"></span></h6>
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-
-
-        <div class="modal fade" id="vamzvonit" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLongTitle"><span id="callerName"></span> вызывает ...</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-header">
-                <button type="button" class="green">
-                  Принять вызов
-                </button>
-                <button onclick="sbros" type="button" class="red">
-                  Сбросить вызов
-                </button>
-              </div>
-              <div class="modal-body">
-                <div class="container-fluid">
-                  <div class="row align-items-center justify-content-center">
-                    <div class="col-md-4"><video id="videoElement"></video></div>
-                    <div class="col-md-4 ml-auto"><span class="loader"></span></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
 
     </div>
     </div>
@@ -131,80 +112,21 @@
     }
     </script>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
-    <script type="text/javascript">
-  
-    var socket = io.connect('http://' + document.domain + ':' + location.port);
-
-    socket.on('connect', function() {
-      console.log('Connected!');
-    });
-
-    socket.on('message', function(data) {
-      document.getElementById("message-list").innerHTML +=
-                "<p><b>"+data.sender+"</b>: "+data.message+' <font class="small" color="grey">'+data.time+"</font></p>";
-      
-      //делает так чтобы сообщения показывались снизу
-      var element = document.getElementById("message-list");
-      element.scrollTop = element.scrollHeight;
-    });
-
-    $(function() {
-      $('#message-form').submit(function(event) {
-        event.preventDefault();
-        var messageInput = $('#message-input');
-        if(messageInput.val() !== ""){
-          var message = messageInput.val();
-          var user_id_receiverInput = $('#user_id_receiver');
-          var user_id_receiver = user_id_receiverInput.val();
-
-          //const file = document.getElementById("myFile").files;
-          //let formData = new FormData();
-          
-          //var totalfiles = document.getElementById('myFile').files.length;
-          //for (var index = 0; index < totalfiles; index++) {
-           // formData.append("files[]", document.getElementById('myFile').files[index]);
-          //}
-
-          //fetch('/files', {method: "POST", body:formData});
-          //const previewImage = document.getElementById("img-preview");
-          //previewImage.src = "/" + file.name;
-
-          messageInput.val('');
-          socket.emit('send', { message: message, user_id_receiver: user_id_receiver});
-        }
-      });
-    });
-
-    function call(){
-      var user_id_sender = document.getElementById("user_id_sender");
-      var user_id_receiver = document.getElementById("user_id_receiver");
-      socket.emit('call', { user_id_sender:user_id_sender.value,user_id_receiver:user_id_receiver.value});
-    }
-
-    socket.on('user_call', function(event) {
-  
-      var user_id_sender = document.getElementById("user_id_sender").value;
-      if(user_id_sender == event.receiver){
-        
-        $('#callerName').text(event.caller)
-        $('#vamzvonit').modal('show')
-      }
-    });
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
     
-    //делает так чтобы сообщения показывались снизу
-    var element = document.getElementById("message-list");
-    element.scrollTop = element.scrollHeight;
-    
-  </script>
+  <script type="text/javascript" src="/js/socket.js"></script>
+
   <script type="text/javascript">
     function open_file(){
         document.getElementById('myFile').click();
     }
   </script> 
+
   <script type="text/javascript" src="/js/video_chat.js"></script>
+  <script type="text/javascript" src="/js/messages.js"></script>
+  <script type="text/javascript" src="/js/call.js"></script>
 </body>
 </html>

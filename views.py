@@ -152,3 +152,29 @@ def handle_send(data):
         "receiver" : user_id_receiver,
         "caller" : login[0][0]
     })
+
+@socketio.on('send_id')
+def handle_send(data):
+    user_id = data.get('user_id')
+
+    login = db_context.db_context('''
+    SELECT LOGIN FROM USERS WHERE id = %s
+    '''%user_id)
+
+    socketio.emit('send_login', {
+        "login" : login
+    })
+
+@socketio.on('send_answer')
+def handle_send(data):
+
+    login = db_context.db_context('''
+    SELECT LOGIN FROM USERS WHERE id = %s
+    '''%data['user_id_sender'])
+
+    socketio.emit('receive_answer', {
+        "answer" : data['answer'],
+        "receiver" : data['user_id_receiver'],
+        "sender" : login
+    })
+
