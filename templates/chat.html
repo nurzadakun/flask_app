@@ -27,13 +27,12 @@
       } 
   </style>
     <style>
-      button {
+      .call-btn {
       color: #000000; 
       border: none; 
       padding: 0.5em 0.5rem;
+      border-radius: 70px;
       }
-      .green { background: #92e15e; }
-      .red { background: #d72c40; }
     </style>
 
 </head>
@@ -85,13 +84,13 @@
                   </div>
                   <div id="call_buttons" class="row align-items-center justify-content-center">
                     <div class="col-md-4 text-center">
-                      <button type="button" onclick="accept()" class="green">
-                        Принять вызов
+                      <button class="call-btn" type="button" onclick="accept()">
+                        <i class="fa fa-phone text-success" aria-hidden="true"></i>
                       </button>
                     </div>
                     <div class="col-md-4 ml-auto text-center">
-                      <button onclick="decline()" type="button" class="red">
-                        Сбросить вызов
+                      <button class="call-btn" onclick="decline()" type="button" >
+                        <i class="fa fa-phone text-danger" aria-hidden="true"></i>
                       </button>
                     </div>
                   </div>
