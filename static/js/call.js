@@ -1,3 +1,8 @@
+var mediaConstraints = {
+    audio: true, // We want an audio track
+    video: true // ...and we want a video track
+};
+
 function sendToServer(msg) {
     socket.emit('connection', { msg:msg});
   }
@@ -10,6 +15,8 @@ function createPeerConnection() {
           }
         ]
     });
+
+    debugger
   
     myPeerConnection.onicecandidate = handleICECandidateEvent;
     myPeerConnection.ontrack = handleTrackEvent;
@@ -20,8 +27,25 @@ function createPeerConnection() {
     //myPeerConnection.onsignalingstatechange = handleSignalingStateChangeEvent;
 }
 
+function handleGetUserMediaError(e) {
+    switch(e.name) {
+      case "NotFoundError":
+        alert("Unable to open your call because no camera and/or microphone" +
+              "were found.");
+        break;
+      case "SecurityError":
+      case "PermissionDeniedError":
+        // Do nothing; this is the same as the user canceling the call.
+        break;
+      default:
+        alert("Error opening your camera and/or microphone: " + e.message);
+        break;
+    }
+  }
+
 function handleNegotiationNeededEvent() {
     myPeerConnection.createOffer().then(function(offer) {
+        debugger
       return myPeerConnection.setLocalDescription(offer);
     })
     .then(function() {
@@ -51,7 +75,7 @@ socket.on('handleVideoOfferMsg', function(msg) {
             return navigator.mediaDevices.getUserMedia(mediaConstraints);
         })
         .then(function(localStream) {
-            $("#videoElement").show();
+            //$("#videoElement").show();
             document.getElementById("videoElement").setAttribute('autoplay', '');
             document.getElementById("videoElement").style.width = '200px';
             document.getElementById("videoElement").style.height = '200px';
@@ -89,22 +113,32 @@ function handleICECandidateEvent(event) {
 }
 
 socket.on('handleNewICECandidateMsg', function(msg) {
+    debugger
 
     var candidate = new RTCIceCandidate(msg.msg.candidate);
-
+    debugger
     myPeerConnection.addIceCandidate(candidate)
     .catch(reportError);
 
 });
 
 function handleTrackEvent(event) {
-    $("#second_video").show();
-    document.getElementById("second_video").setAttribute('autoplay', '');
-    document.getElementById("second_video").style.width = '200px';
-    document.getElementById("second_video").style.height = '200px';
     debugger
-    console.log(event)
-    document.getElementById("second_video").srcObject = event.streams[0];
+    // document.getElementById("second_video").srcObject = event.streams[0];
+    // document.getElementById("second_video").style.width = '200px';
+    // document.getElementById("second_video").style.height = '200px';
+    var video = document.querySelector("#second_video");
+    video.srcObject = event.streams[0]
+    // video.setAttribute('playsinline', '');
+    video.setAttribute('autoplay', '');
+    // video.setAttribute('muted', '');
+    video.style.width = '200px';
+    video.style.height = '200px';
+    $("#second_video").show();
+    debugger
+
+    var qwe = document.getElementById("second_video");
+    debugger
 }
 
 
@@ -147,12 +181,6 @@ function decline(){
     socket.emit('send_answer', { answer:false, user_id_receiver:user_id_receiver.value, user_id_sender:user_id_sender.value});
 }
 
-var mediaConstraints = {
-    audio: true, // We want an audio track
-    video: true // ...and we want a video track
-};
-
-
 function accept(){
     startTimer();
     $("#call_buttons").hide();
@@ -170,7 +198,6 @@ function accept(){
       document.getElementById("videoElement").srcObject = localStream;
 
       localStream.getTracks().forEach(track => myPeerConnection.addTrack(track, localStream));
-
       socket.emit('send_answer', { answer:true, user_id_receiver:user_id_receiver.value, user_id_sender:user_id_sender.value});
     })
     .catch(handleGetUserMediaError);
@@ -208,8 +235,8 @@ function startTimer() {
       minutes = minutes < 10 ? '0' + minutes : minutes;
       seconds = seconds < 10 ? '0' + seconds : seconds;
       
-      console.clear(); // clear console on each update
-      console.log(`${hours}:${minutes}:${seconds}`); // display the elapsed time
+    //   console.clear(); // clear console on each update
+    //   console.log(`${hours}:${minutes}:${seconds}`); // display the elapsed time
       $('#header_text').text(hours+":"+minutes+":"+seconds)
     }, 1000); // update every second
   }
