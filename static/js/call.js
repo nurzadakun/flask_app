@@ -15,8 +15,6 @@ function createPeerConnection() {
           }
         ]
     });
-
-    debugger
   
     myPeerConnection.onicecandidate = handleICECandidateEvent;
     myPeerConnection.ontrack = handleTrackEvent;
@@ -41,11 +39,10 @@ function handleGetUserMediaError(e) {
         alert("Error opening your camera and/or microphone: " + e.message);
         break;
     }
-  }
+}
 
 function handleNegotiationNeededEvent() {
     myPeerConnection.createOffer().then(function(offer) {
-        debugger
       return myPeerConnection.setLocalDescription(offer);
     })
     .then(function() {
@@ -75,7 +72,7 @@ socket.on('handleVideoOfferMsg', function(msg) {
             return navigator.mediaDevices.getUserMedia(mediaConstraints);
         })
         .then(function(localStream) {
-            //$("#videoElement").show();
+            $("#videoElement").show();
             document.getElementById("videoElement").setAttribute('autoplay', '');
             document.getElementById("videoElement").style.width = '200px';
             document.getElementById("videoElement").style.height = '200px';
@@ -96,10 +93,18 @@ socket.on('handleVideoOfferMsg', function(msg) {
                 type: "video-answer",
                 sdp: myPeerConnection.localDescription
             };
-            //sendToServer(msg);
+            sendToServer(msg);
         })
         .catch(handleGetUserMediaError);
         }
+});
+
+socket.on('handleVideoAnswerMsg', function(msg) {
+
+    var user_id_sender = document.getElementById("user_id_sender").value;
+    if(user_id_sender == msg.msg.target){
+        myPeerConnection.setRemoteDescription(new RTCSessionDescription(msg.msg.sdp));
+    }
 });
 
 function handleICECandidateEvent(event) {
@@ -113,17 +118,14 @@ function handleICECandidateEvent(event) {
 }
 
 socket.on('handleNewICECandidateMsg', function(msg) {
-    debugger
 
     var candidate = new RTCIceCandidate(msg.msg.candidate);
-    debugger
     myPeerConnection.addIceCandidate(candidate)
     .catch(reportError);
 
 });
 
 function handleTrackEvent(event) {
-    debugger
     // document.getElementById("second_video").srcObject = event.streams[0];
     // document.getElementById("second_video").style.width = '200px';
     // document.getElementById("second_video").style.height = '200px';
@@ -135,10 +137,8 @@ function handleTrackEvent(event) {
     video.style.width = '200px';
     video.style.height = '200px';
     $("#second_video").show();
-    debugger
 
     var qwe = document.getElementById("second_video");
-    debugger
 }
 
 

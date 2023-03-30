@@ -184,11 +184,10 @@ def handle_send(data):
         socketio.emit('handleNewICECandidateMsg', {
         "msg" : msg
     })
-    #elif msg['type']=='video-answer' :
-    #    socketio.emit('handleVideoOfferMsg', {
-    #    "msg" : msg
-    #})
+    elif msg['type']=='video-answer' :
+        socketio.emit('handleVideoAnswerMsg', {
+        "msg" : msg
+    })
 
     
-
 
