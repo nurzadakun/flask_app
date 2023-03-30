@@ -1,0 +1,2 @@
+targetUsername = clickedUsername;
+    createPeerConnection()
