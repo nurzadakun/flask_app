@@ -11,6 +11,10 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config['UPLOAD_FOLDER'] = "files2"
 Session(app)
+
+from engineio.payload import Payload
+
+Payload.max_decode_packets = 500
 socketio = SocketIO(app, max_http_buffer_size=10000000)
 
 mail_config.mail_config(app)
@@ -37,4 +41,4 @@ app.add_url_rule('/reset_password/<token>', view_func=views.reset, methods=["POS
 app.add_url_rule('/files', view_func=views.files, methods=["POST","GET"])
 
 if __name__ == '__main__':
-    socketio.run(app)
+    socketio.run(app, host='192.168.43.218', port=5000)
