@@ -38,5 +38,7 @@ app.add_url_rule('/files', view_func=views.files, methods=["POST","GET"])
 
 app.add_url_rule('/test', view_func=views.test)
 
+app.add_url_rule('/redact', view_func=views.redact)
+
 if __name__ == '__main__':
     socketio.run(app)
