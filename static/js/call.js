@@ -5,140 +5,73 @@ var mediaConstraints = {
 
 function sendToServer(msg) {
     socket.emit('connection', { msg:msg});
-  }
+}
 
-function createPeerConnection() {
-    myPeerConnection = new RTCPeerConnection({
-        iceServers: [     // Information about ICE servers - Use your own!
-          {
-            urls: "stun:stun.l.google.com:19302"
-          }
+let pc;
+
+const iceServers = {
+        'iceServers': [
+          {'urls': 'stun:stun.l.google.com:19302'},
+          {'urls': 'turn:turn.example.com:3478', 'credential': 'password', 'username': 'username'}
         ]
-    });
+};
 
-    debugger
-  
-    myPeerConnection.onicecandidate = handleICECandidateEvent;
-    myPeerConnection.ontrack = handleTrackEvent;
-    myPeerConnection.onnegotiationneeded = handleNegotiationNeededEvent;
-    //myPeerConnection.onremovetrack = handleRemoveTrackEvent;
-    //myPeerConnection.oniceconnectionstatechange = handleICEConnectionStateChangeEvent;
-    //myPeerConnection.onicegatheringstatechange = handleICEGatheringStateChangeEvent;
-    //myPeerConnection.onsignalingstatechange = handleSignalingStateChangeEvent;
-}
-
-function handleGetUserMediaError(e) {
-    switch(e.name) {
-      case "NotFoundError":
-        alert("Unable to open your call because no camera and/or microphone" +
-              "were found.");
-        break;
-      case "SecurityError":
-      case "PermissionDeniedError":
-        // Do nothing; this is the same as the user canceling the call.
-        break;
-      default:
-        alert("Error opening your camera and/or microphone: " + e.message);
-        break;
-    }
-  }
-
-function handleNegotiationNeededEvent() {
-    myPeerConnection.createOffer().then(function(offer) {
-        debugger
-      return myPeerConnection.setLocalDescription(offer);
-    })
-    .then(function() {
-
-        var msg = {
-            name: document.getElementById("user_id_sender").value,
-            target: document.getElementById("user_id_receiver").value,
-            type: "video-offer",
-            sdp: myPeerConnection.localDescription
+navigator.mediaDevices.getUserMedia({video: true})
+        .then(stream => {
+          localStream = stream;
+          document.getElementById("videoElement").setAttribute('autoplay', '');
+          document.getElementById("videoElement").style.width = '200px';
+          document.getElementById("videoElement").style.height = '200px';
+          document.getElementById("videoElement").srcObject = localStream;
+          pc = new RTCPeerConnection(iceServers);
+          pc.addStream(stream);
+          pc.onicecandidate = event => {
+            if (event.candidate) {
+                debugger
+              socket.emit('candidate', event.candidate);
+            }
           };
-
-        sendToServer(msg);
-    })
-    .catch(reportError);
-}
-
-socket.on('handleVideoOfferMsg', function(msg) {
-
-    var user_id_sender = document.getElementById("user_id_sender").value;
-    if(user_id_sender == msg.msg.target){
-        targetUsername = msg.msg.name;
-        createPeerConnection();
-    
-        var desc = new RTCSessionDescription(msg.msg.sdp);
-    
-        myPeerConnection.setRemoteDescription(desc).then(function () {
-            return navigator.mediaDevices.getUserMedia(mediaConstraints);
+          pc.onaddstream = event => {
+            document.getElementById("second_video").setAttribute('autoplay', '');
+            document.getElementById("second_video").style.width = '200px';
+            document.getElementById("second_video").style.height = '200px';
+            document.getElementById("second_video").srcObject = event.stream;
+          };
+          socket.on('offer', data => {
+            if(document.getElementById("user_id_sender").value == data.target){
+                pc.setRemoteDescription(new RTCSessionDescription(data));
+                pc.createAnswer()
+                .then(answer => {
+                    pc.setLocalDescription(answer);
+                    socket.emit('answer', {target: document.getElementById("user_id_receiver").value, answer:answer});
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+            }
+          });
+          socket.on('answer', data => {
+            if(document.getElementById("user_id_sender").value == data.target){
+                pc.setRemoteDescription(new RTCSessionDescription(data));
+            }
+          });
+          socket.on('candidate', data => {
+            pc.addIceCandidate(new RTCIceCandidate(data));
+          });
         })
-        .then(function(localStream) {
-            //$("#videoElement").show();
-            document.getElementById("videoElement").setAttribute('autoplay', '');
-            document.getElementById("videoElement").style.width = '200px';
-            document.getElementById("videoElement").style.height = '200px';
-            document.getElementById("videoElement").srcObject = localStream;
-    
-            localStream.getTracks().forEach(track => myPeerConnection.addTrack(track, localStream));
-        })
-        .then(function() {
-            return myPeerConnection.createAnswer();
-        })
-        .then(function(answer) {
-            return myPeerConnection.setLocalDescription(answer);
-        })
-        .then(function() {
-            var msg = {
-                name: document.getElementById("user_id_sender").value,
-                target: document.getElementById("user_id_receiver").value,
-                type: "video-answer",
-                sdp: myPeerConnection.localDescription
-            };
-            //sendToServer(msg);
-        })
-        .catch(handleGetUserMediaError);
-        }
+        .catch(error => {
+          console.log(error);
 });
 
-function handleICECandidateEvent(event) {
-    if (event.candidate) {
-      sendToServer({
-        type: "new-ice-candidate",
-        target: document.getElementById("user_id_receiver").value,
-        candidate: event.candidate
+function call_call() {
+    pc.createOffer()
+      .then(offer => {
+        pc.setLocalDescription(offer);
+        socket.emit('offer', {target: document.getElementById("user_id_receiver").value, offer:offer});
+      })
+      .catch(error => {
+        console.log(error);
       });
-    }
-}
-
-socket.on('handleNewICECandidateMsg', function(msg) {
-    debugger
-
-    var candidate = new RTCIceCandidate(msg.msg.candidate);
-    debugger
-    myPeerConnection.addIceCandidate(candidate)
-    .catch(reportError);
-
-});
-
-function handleTrackEvent(event) {
-    debugger
-    // document.getElementById("second_video").srcObject = event.streams[0];
-    // document.getElementById("second_video").style.width = '200px';
-    // document.getElementById("second_video").style.height = '200px';
-    var video = document.querySelector("#second_video");
-    video.srcObject = event.streams[0]
-    // video.setAttribute('playsinline', '');
-    video.setAttribute('autoplay', '');
-    // video.setAttribute('muted', '');
-    video.style.width = '200px';
-    video.style.height = '200px';
-    $("#second_video").show();
-    debugger
-
-    var qwe = document.getElementById("second_video");
-    debugger
 }
 
 
@@ -159,6 +92,8 @@ function call(){
     var user_id_sender = document.getElementById("user_id_sender");
     var user_id_receiver = document.getElementById("user_id_receiver");
     socket.emit('call', { user_id_sender:user_id_sender.value,user_id_receiver:user_id_receiver.value});
+
+    call_call();
 }
 
 socket.on('user_call', function(event) {
@@ -185,22 +120,11 @@ function accept(){
     startTimer();
     $("#call_buttons").hide();
     $("#videoElement").show();
+    $("#second_video").show();
     var user_id_sender = document.getElementById("user_id_sender");
     var user_id_receiver = document.getElementById("user_id_receiver");
 
-    createPeerConnection();
-
-    navigator.mediaDevices.getUserMedia(mediaConstraints)
-    .then(function(localStream) {
-      document.getElementById("videoElement").setAttribute('autoplay', '');
-      document.getElementById("videoElement").style.width = '200px';
-      document.getElementById("videoElement").style.height = '200px';
-      document.getElementById("videoElement").srcObject = localStream;
-
-      localStream.getTracks().forEach(track => myPeerConnection.addTrack(track, localStream));
-      socket.emit('send_answer', { answer:true, user_id_receiver:user_id_receiver.value, user_id_sender:user_id_sender.value});
-    })
-    .catch(handleGetUserMediaError);
+    socket.emit('send_answer', { answer:true, user_id_receiver:user_id_receiver.value, user_id_sender:user_id_sender.value});
 }
 
 socket.on('receive_answer', function(event) {
@@ -209,14 +133,12 @@ socket.on('receive_answer', function(event) {
     if(user_id_sender == event.receiver){
         $("#loader").hide();
         if(event.answer == false){
-            console.log("dfsgverbhe")
             $('#body_text').text(event.sender+" не отвечает")
         }
         else if(event.answer == true){  
-            console.log("dfsgverbhe")
             startTimer();  
-            //$("#videoElement").show();
-            //$("#second_video").show();
+            $("#videoElement").show();
+            $("#second_video").show();
         }
     }
 });
@@ -237,6 +159,5 @@ function startTimer() {
       
     //   console.clear(); // clear console on each update
     //   console.log(`${hours}:${minutes}:${seconds}`); // display the elapsed time
-      $('#header_text').text(hours+":"+minutes+":"+seconds)
-    }, 1000); // update every second
+      $('#header_text').text(hours+":"+minutes+":"+seconds)}, 1000); // update every second
   }

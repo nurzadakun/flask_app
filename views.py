@@ -173,21 +173,18 @@ def handle_send(data):
         "sender" : login
     })
 
-@socketio.on('connection')
-def handle_send(data):
-    msg = data.get('msg')
-    if msg['type']=='video-offer' :
-        socketio.emit('handleVideoOfferMsg', {
-        "msg" : msg
-    })
-    elif msg['type']=='new-ice-candidate' :
-        socketio.emit('handleNewICECandidateMsg', {
-        "msg" : msg
-    })
-    #elif msg['type']=='video-answer' :
-    #    socketio.emit('handleVideoOfferMsg', {
-    #    "msg" : msg
-    #})
+
+@socketio.on('offer')
+def on_offer(data):
+    socketio.emit('offer', data, broadcast=True, include_self=False)
+
+@socketio.on('answer')
+def on_answer(data):
+    socketio.emit('answer', data, broadcast=True, include_self=False)
+
+@socketio.on('candidate')
+def on_candidate(data):
+    socketio.emit('candidate', data, broadcast=True, include_self=False)
 
     
 
