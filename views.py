@@ -6,11 +6,6 @@ from main import socketio, mail, app
 from flask_mail import Message
 import os
 
-
-def test():
-    return render_template('test.html')
-
-
 #профиль
 #session["name"] - это логин пользователя
 def welcome():
@@ -177,6 +172,23 @@ def handle_send(data):
         "sender" : login
     })
 
+@socketio.on('connection')
+def handle_send(data):
+    msg = data.get('msg')
+    if msg['type']=='video-offer' :
+        socketio.emit('handleVideoOfferMsg', {
+        "msg" : msg
+    })
+    elif msg['type']=='new-ice-candidate' :
+        socketio.emit('handleNewICECandidateMsg', {
+        "msg" : msg
+    })
+    #elif msg['type']=='video-answer' :
+    #    socketio.emit('handleVideoOfferMsg', {
+    #    "msg" : msg
+    #})
+
+
 def redact():
     if request.method == 'POST':
 
@@ -187,3 +199,4 @@ def redact():
         
         return redirect("/profile")
     return render_template("redact.html")
+

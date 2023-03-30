@@ -36,9 +36,5 @@ app.add_url_rule('/reset_password/<token>', view_func=views.reset, methods=["POS
 
 app.add_url_rule('/files', view_func=views.files, methods=["POST","GET"])
 
-app.add_url_rule('/test', view_func=views.test)
-
-app.add_url_rule('/redact', view_func=views.redact)
-
 if __name__ == '__main__':
     socketio.run(app)
