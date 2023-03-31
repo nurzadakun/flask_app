@@ -8,45 +8,44 @@ function sendToServer(msg) {
 }
 
 function createPeerConnection() {
-  myPeerConnection = new RTCPeerConnection({
-      iceServers: [     // Information about ICE servers - Use your own!
-        {
-          urls: "stun:stun.l.google.com:19302"
-        }
-      ]
-  });
-
-
-  myPeerConnection.onicecandidate = handleICECandidateEvent;
-  myPeerConnection.ontrack = handleTrackEvent;
-  myPeerConnection.onnegotiationneeded = handleNegotiationNeededEvent;
-  //myPeerConnection.onremovetrack = handleRemoveTrackEvent;
-  //myPeerConnection.oniceconnectionstatechange = handleICEConnectionStateChangeEvent;
-  //myPeerConnection.onicegatheringstatechange = handleICEGatheringStateChangeEvent;
-  //myPeerConnection.onsignalingstatechange = handleSignalingStateChangeEvent;
+    myPeerConnection = new RTCPeerConnection({
+        iceServers: [     // Information about ICE servers - Use your own!
+          {
+            urls: "stun:stun.l.google.com:19302"
+          }
+        ]
+    });
+  
+    myPeerConnection.onicecandidate = handleICECandidateEvent;
+    myPeerConnection.ontrack = handleTrackEvent;
+    myPeerConnection.onnegotiationneeded = handleNegotiationNeededEvent;
+    //myPeerConnection.onremovetrack = handleRemoveTrackEvent;
+    //myPeerConnection.oniceconnectionstatechange = handleICEConnectionStateChangeEvent;
+    //myPeerConnection.onicegatheringstatechange = handleICEGatheringStateChangeEvent;
+    //myPeerConnection.onsignalingstatechange = handleSignalingStateChangeEvent;
 }
 
 function handleGetUserMediaError(e) {
-  switch(e.name) {
-    case "NotFoundError":
-      alert("Unable to open your call because no camera and/or microphone" +
-            "were found.");
-      break;
-    case "SecurityError":
-    case "PermissionDeniedError":
-      // Do nothing; this is the same as the user canceling the call.
-      break;
-    default:
-      alert("Error opening your camera and/or microphone: " + e.message);
-      break;
-  }
+    switch(e.name) {
+      case "NotFoundError":
+        alert("Unable to open your call because no camera and/or microphone" +
+              "were found.");
+        break;
+      case "SecurityError":
+      case "PermissionDeniedError":
+        // Do nothing; this is the same as the user canceling the call.
+        break;
+      default:
+        alert("Error opening your camera and/or microphone: " + e.message);
+        break;
+    }
 }
 
 function handleNegotiationNeededEvent() {
-  myPeerConnection.createOffer().then(function(offer) {
-    return myPeerConnection.setLocalDescription(offer);
-  })
-  .then(function() {
+    myPeerConnection.createOffer().then(function(offer) {
+      return myPeerConnection.setLocalDescription(offer);
+    })
+    .then(function() {
 
       var msg = {
           name: document.getElementById("user_id_sender").value,
@@ -62,52 +61,50 @@ function handleNegotiationNeededEvent() {
 
 socket.on('handleVideoOfferMsg', function(msg) {
 
-  var user_id_sender = document.getElementById("user_id_sender").value;
-  if(user_id_sender == msg.msg.target){
-      targetUsername = msg.msg.name;
-      createPeerConnection();
-  
-      var desc = new RTCSessionDescription(msg.msg.sdp);
-  
-      myPeerConnection.setRemoteDescription(desc).then(function () {
-          return navigator.mediaDevices.getUserMedia(mediaConstraints);
-      })
-      .then(function(localStream) {
-          $("#videoElement").show();
-          function handleTrackEvent(event) {
-
-            // document.getElementById("second_video").srcObject = event.streams[0];
-            // document.getElementById("second_video").style.width = '200px';
-            // document.getElementById("second_video").style.height = '200px';
-            var video = document.querySelector("#videoElement");
-            video.srcObject = event.streams[0]
-            // video.setAttribute('playsinline', '');
-            video.setAttribute('autoplay', '');
-            // video.setAttribute('muted', '');
-            video.style.width = '200px';
-            video.style.height = '200px';
+    var user_id_sender = document.getElementById("user_id_sender").value;
+    if(user_id_sender == msg.msg.target){
+        targetUsername = msg.msg.name;
+        createPeerConnection();
+    
+        var desc = new RTCSessionDescription(msg.msg.sdp);
+    
+        myPeerConnection.setRemoteDescription(desc).then(function () {
+            return navigator.mediaDevices.getUserMedia(mediaConstraints);
+        })
+        .then(function(localStream) {
             $("#videoElement").show();
-          
-            var qwe = document.getElementById("videoElement");
-          }
-      })
-      .then(function() {
-          return myPeerConnection.createAnswer();
-      })
-      .then(function(answer) {
-          return myPeerConnection.setLocalDescription(answer);
-      })
-      .then(function() {
-          var msg = {
-              name: document.getElementById("user_id_sender").value,
-              target: document.getElementById("user_id_receiver").value,
-              type: "video-answer",
-              sdp: myPeerConnection.localDescription
-          };
-          //sendToServer(msg);
-      })
-      .catch(handleGetUserMediaError);
-      }
+            document.getElementById("videoElement").setAttribute('autoplay', '');
+            document.getElementById("videoElement").style.width = '200px';
+            document.getElementById("videoElement").style.height = '200px';
+            document.getElementById("videoElement").srcObject = localStream;
+    
+            localStream.getTracks().forEach(track => myPeerConnection.addTrack(track, localStream));
+        })
+        .then(function() {
+            return myPeerConnection.createAnswer();
+        })
+        .then(function(answer) {
+            return myPeerConnection.setLocalDescription(answer);
+        })
+        .then(function() {
+            var msg = {
+                name: document.getElementById("user_id_sender").value,
+                target: document.getElementById("user_id_receiver").value,
+                type: "video-answer",
+                sdp: myPeerConnection.localDescription
+            };
+            sendToServer(msg);
+        })
+        .catch(handleGetUserMediaError);
+        }
+});
+
+socket.on('handleVideoAnswerMsg', function(msg) {
+
+    var user_id_sender = document.getElementById("user_id_sender").value;
+    if(user_id_sender == msg.msg.target){
+        myPeerConnection.setRemoteDescription(new RTCSessionDescription(msg.msg.sdp));
+    }
 });
 
 function handleICECandidateEvent(event) {
@@ -122,29 +119,26 @@ function handleICECandidateEvent(event) {
 
 socket.on('handleNewICECandidateMsg', function(msg) {
 
-
-  var candidate = new RTCIceCandidate(msg.msg.candidate);
-
-  myPeerConnection.addIceCandidate(candidate)
-  .catch(reportError);
+    var candidate = new RTCIceCandidate(msg.msg.candidate);
+    myPeerConnection.addIceCandidate(candidate)
+    .catch(reportError);
 
 });
 
 function handleTrackEvent(event) {
+    // document.getElementById("second_video").srcObject = event.streams[0];
+    // document.getElementById("second_video").style.width = '200px';
+    // document.getElementById("second_video").style.height = '200px';
+    var video = document.querySelector("#second_video");
+    video.srcObject = event.streams[0]
+    // video.setAttribute('playsinline', '');
+    video.setAttribute('autoplay', '');
+    // video.setAttribute('muted', '');
+    video.style.width = '200px';
+    video.style.height = '200px';
+    $("#second_video").show();
 
-  // document.getElementById("second_video").srcObject = event.streams[0];
-  // document.getElementById("second_video").style.width = '200px';
-  // document.getElementById("second_video").style.height = '200px';
-  var video = document.querySelector("#second_video");
-  video.srcObject = event.streams[0]
-  // video.setAttribute('playsinline', '');
-  video.setAttribute('autoplay', '');
-  // video.setAttribute('muted', '');
-  video.style.width = '200px';
-  video.style.height = '200px';
-  $("#second_video").show();
-
-  var qwe = document.getElementById("second_video");
+    var qwe = document.getElementById("second_video");
 }
 
 
