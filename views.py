@@ -52,7 +52,7 @@ def regist():
         db_context.db_context('''INSERT INTO users (login, email, password)
         VALUES ('%s', '%s', '%s')
         '''%(login, email, password), commit=True)
-    return render_template("regist.html") 
+    return render_template("regist.html")
 
 
 #авторизация 
@@ -103,6 +103,7 @@ def reset(token):
         password = functions.hash_password(password)
 
         db_context.db_context("UPDATE users SET password = '%s', reset_token = NULL WHERE id = '%s'"%(password, user[0][0]), commit=True)
+        
         return redirect("/auth")
     return render_template("resetpassword.html")
 
@@ -188,15 +189,5 @@ def handle_send(data):
     #    "msg" : msg
     #})
 
-
-def redact():
-    if request.method == 'POST':
-
-        login = request.form['new_login']
-        login = functions.hash_login(login)
-
-        db_context.db_context("UPDATE users SET login = '%s', login = NULL WHERE id = '%s'"%(login, user[0][0]), commit=True)
-        
-        return redirect("/profile")
-    return render_template("redact.html")
+    
 
